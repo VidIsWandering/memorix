@@ -11,6 +11,12 @@ const auth = (req, res, next) => {
     req.user = { userId: decoded.userId };
     return next();
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res
+        .status(401)
+        .json({ error: 'Access token expired', action: 'refresh' });
+    }
+    // eslint-disable-next-line no-console
     console.error('Token verification failed:', error.message);
     return res.status(401).json({ error: 'Invalid token' });
   }
