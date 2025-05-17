@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.js';
+import userRoutes from './user.js';
 import deckRoutes from './decks.js';
 import flashcardRoutes from './flashcards.js';
 import progressRoutes from './progress.js';
@@ -10,6 +11,7 @@ import deviceRoutes from './devices.js';
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
 router.use('/decks', deckRoutes);
 router.use('/flashcards', flashcardRoutes);
 router.use('/progress', progressRoutes);
