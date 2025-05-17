@@ -39,7 +39,6 @@ const refreshToken = async (req, res) => {
       },
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Refresh token error:', error.message);
     return res.status(500).json({ error: 'Failed to refresh token' });
   }
