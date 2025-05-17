@@ -1,12 +1,12 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const dotenv = require('dotenv');
+import express, { json } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import { config } from 'dotenv';
+import routes from './src/routes/index.js';
+import process from 'node:process';
 
-dotenv.config();
+config();
 
 const app = express();
 
@@ -14,15 +14,19 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
-app.use(express.json());
+app.use(json());
 
 // Routes
-app.get('/', (req, res) => {
+app.use('/api', routes);
+
+// Default route
+app.get('/', (_req, res) => {
   res.json({ message: 'Memorix Backend API' });
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
