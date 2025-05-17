@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import authController from '../controllers/authController.js';
 import validation from '../middleware/validation.js';
-import { refreshToken } from '../controllers/refreshTokenController.js';
 import auth from '../middleware/auth.js';
+import authController from '../controllers/authController.js';
+import { refreshToken } from '../controllers/refreshTokenController.js';
 import { logout } from '../controllers/logoutController.js';
 
 const router = Router();
