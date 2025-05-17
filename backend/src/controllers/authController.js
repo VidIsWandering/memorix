@@ -44,7 +44,7 @@ const login = async (req, res) => {
       }
     );
     const refreshToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 ngày
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     await knex('refresh_tokens').insert({
       user_id: user.user_id,
       token: refreshToken,

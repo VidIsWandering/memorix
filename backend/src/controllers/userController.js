@@ -42,4 +42,4 @@ const updateUser = async (req, res) => {
   }
 };
 
-export { getUser, updateUser };
+export default { getUser, updateUser };

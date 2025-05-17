@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import shareController from '../controllers/shareController.js';
-import auth from '../middleware/auth.js';
 import validation from '../middleware/validation.js';
+import auth from '../middleware/auth.js';
+import shareController from '../controllers/shareController.js';
 
 const router = Router();
 

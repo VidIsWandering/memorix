@@ -14,7 +14,6 @@ const logout = async (req, res) => {
     }
     return res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Logout error:', error.message);
     return res.status(500).json({ error: 'Logout failed' });
   }

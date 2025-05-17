@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import deckController from '../controllers/deckController.js';
-import auth from '../middleware/auth.js';
 import validation from '../middleware/validation.js';
+import auth from '../middleware/auth.js';
+import deckController from '../controllers/deckController.js';
+
 
 const router = Router();
 

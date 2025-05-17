@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import groupController from '../controllers/groupController.js';
-import auth from '../middleware/auth.js';
 import validation from '../middleware/validation.js';
+import auth from '../middleware/auth.js';
+import groupController from '../controllers/groupController.js';
 
 const router = Router();
 
