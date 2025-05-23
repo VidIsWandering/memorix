@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-exports.up = function (knex) {
+export async function up(knex) {
     return Promise.all([
       knex.schema.createTable('users', (table) => {
         table.increments('user_id').primary();
@@ -64,11 +64,23 @@ exports.up = function (knex) {
         table.string('device_name').nullable();
         table.timestamp('last_used_at').defaultTo(knex.fn.now());
       }),
+      knex.schema.createTable('refresh_tokens', (table) => {
+        table.increments('id').primary();
+        table
+          .integer('user_id')
+          .references('user_id')
+          .inTable('users')
+          .notNullable()
+          .onDelete('CASCADE');
+        table.text('token').notNullable();
+        table.timestamp('expires_at').notNullable();
+      }),
     ]);
   };
   
-  exports.down = function (knex) {
+export async function down(knex) {
     return Promise.all([
+      knex.schema.dropTableIfExists('refresh_tokens'),
       knex.schema.dropTableIfExists('user_devices'),
       knex.schema.dropTableIfExists('deck_shares'),
       knex.schema.dropTableIfExists('group_members'),
