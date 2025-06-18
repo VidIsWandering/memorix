@@ -3,13 +3,21 @@ import validation from '../middleware/validation.js';
 import auth from '../middleware/auth.js';
 import flashcardController from '../controllers/flashcardController.js';
 
-
 const router = Router();
 
+// Tạo flashcard mới
 router.post('/', auth, validation.validateFlashcard, flashcardController.createFlashcard);
-router.get('/', auth, flashcardController.getFlashcards);
-router.get('/:id', auth, flashcardController.getFlashcard);
-router.put('/:id', auth, validation.validateFlashcard, flashcardController.updateFlashcard);
-router.delete('/:id', auth, flashcardController.deleteFlashcard);
+
+// Lấy tất cả flashcard theo deckId
+router.get('/deck/:deckId', auth, flashcardController.getFlashcards);
+
+// Lấy 1 flashcard theo flashcardId
+router.get('/:flashcardId', auth, flashcardController.getFlashcard);
+
+// Cập nhật flashcard
+router.put('/:flashcardId', auth, validation.validateFlashcard, flashcardController.updateFlashcard);
+
+// Xóa flashcard
+router.delete('/:flashcardId', auth, flashcardController.deleteFlashcard);
 
 export default router;

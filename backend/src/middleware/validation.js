@@ -56,10 +56,27 @@ const validateUpdateUser = [
   },
 ];
 
-const validateDeck = (_req, res, next) => {
-  // eslint-disable-next-line no-unused-vars
-  return next();
-};
+const validateDeck = [
+  body('name')
+    .notEmpty()
+    .trim()
+    .withMessage('Deck name is required'),
+  body('description')
+    .optional()
+    .isString()
+    .withMessage('Description must be a string'),
+  body('is_public')
+    .optional()
+    .isBoolean()
+    .withMessage('is_public must be boolean'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    return next();
+  },
+];
 
 const validateFlashcard = (_req, res, next) => {
   // eslint-disable-next-line no-unused-vars
