@@ -2,9 +2,11 @@ import Deck from '../models/Deck.js';
 
 // Tạo bộ thẻ mới
 const createDeck = async (req, res) => {
+  console.log('req.body:', req.body);
+  console.log('req.user:', req.user);
   try {
     const { name, description, is_public } = req.body;
-    const user_id = req.user?.user_id; // Giả sử đã có middleware xác thực và gán user vào req
+    const user_id = req.user?.userId;
     if (!user_id || !name) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -19,7 +21,7 @@ const createDeck = async (req, res) => {
 // Lấy tất cả bộ thẻ của user hiện tại
 const getDecks = async (req, res) => {
   try {
-    const user_id = req.user?.user_id;
+    const user_id = req.user?.userId;
     if (!user_id) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -34,13 +36,13 @@ const getDecks = async (req, res) => {
 // Lấy thông tin 1 bộ thẻ
 const getDeck = async (req, res) => {
   try {
-    const { deckId } = req.params;
-    const deck = await Deck.findById(deckId);
+    const { id } = req.params;
+    const deck = await Deck.findById(id);
     if (!deck) {
       return res.status(404).json({ error: 'Deck not found' });
     }
     // Nếu deck không public và không phải của user thì không cho xem
-    if (!deck.is_public && deck.user_id !== req.user?.user_id) {
+    if (!deck.is_public && deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     return res.json(deck);
@@ -53,16 +55,16 @@ const getDeck = async (req, res) => {
 // Cập nhật bộ thẻ
 const updateDeck = async (req, res) => {
   try {
-    const { deckId } = req.params;
+    const { id } = req.params;
     const { name, description, is_public } = req.body;
-    const deck = await Deck.findById(deckId);
+    const deck = await Deck.findById(id);
     if (!deck) {
       return res.status(404).json({ error: 'Deck not found' });
     }
-    if (deck.user_id !== req.user?.user_id) {
+    if (deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const updated = await Deck.update(deckId, { name, description, is_public });
+    const updated = await Deck.update(id, { name, description, is_public });
     return res.json(updated);
   } catch (error) {
     console.error(error);
@@ -73,15 +75,15 @@ const updateDeck = async (req, res) => {
 // Xóa bộ thẻ
 const deleteDeck = async (req, res) => {
   try {
-    const { deckId } = req.params;
-    const deck = await Deck.findById(deckId);
+    const { id } = req.params;
+    const deck = await Deck.findById(id);
     if (!deck) {
       return res.status(404).json({ error: 'Deck not found' });
     }
-    if (deck.user_id !== req.user?.user_id) {
+    if (deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    await Deck.delete(deckId);
+    await Deck.delete(id);
     return res.json({ success: true });
   } catch (error) {
     console.error(error);

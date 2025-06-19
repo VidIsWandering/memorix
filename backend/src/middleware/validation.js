@@ -78,10 +78,30 @@ const validateDeck = [
   },
 ];
 
-const validateFlashcard = (_req, res, next) => {
-  // eslint-disable-next-line no-unused-vars
-  return next();
-};
+const validateFlashcard = [
+  body('deck_id')
+    .notEmpty()
+    .withMessage('deck_id is required')
+    .isInt({ min: 1 })
+    .withMessage('deck_id must be a positive integer'),
+  body('card_type')
+    .notEmpty()
+    .withMessage('card_type is required')
+    .isIn(['two_sided', 'multiple_choice', 'fill_in_blank'])
+    .withMessage('card_type must be one of: two_sided, multiple_choice, fill_in_blank'),
+  body('content')
+    .notEmpty()
+    .withMessage('content is required')
+    .isObject()
+    .withMessage('content must be an object'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    return next();
+  },
+];
 
 const validateProgress = (_req, res, next) => {
   // eslint-disable-next-line no-unused-vars
