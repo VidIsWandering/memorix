@@ -7,7 +7,7 @@ import { knex } from '../config/database.js';
 
 async function register(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone } = req.body;
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
@@ -17,11 +17,14 @@ async function register(req, res) {
       username,
       email,
       password_hash: passwordHash,
+      phone,
     });
     return res.status(201).json({
       user_id: user.user_id,
       username: user.username,
       email: user.email,
+      phone: user.phone,
+      image_url: user.image_url,
     });
   } catch (error) {
     console.error(error);
@@ -57,6 +60,8 @@ const login = async (req, res) => {
         user_id: user.user_id,
         username: user.username,
         email: user.email,
+        phone: user.phone,
+        image_url: user.image_url,
       },
     });
   } catch (error) {

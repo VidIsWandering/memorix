@@ -11,6 +11,8 @@ const getUser = async (req, res) => {
       user_id: user.user_id,
       username: user.username,
       email: user.email,
+      phone: user.phone,
+      image_url: user.image_url,
     });
   } catch (error) {
     console.error('Get user error:', error.message);
@@ -20,11 +22,13 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone, image_url } = req.body;
     const updates = {};
     if (username) updates.username = username;
     if (email) updates.email = email;
     if (password) updates.password_hash = await bcrypt.hash(password, 10);
+    if (phone) updates.phone = phone;
+    if (image_url) updates.image_url = image_url;
     const existingEmail = email ? await User.findByEmail(email) : null;
     if (existingEmail && existingEmail.user_id !== req.user.userId) {
       return res
