@@ -5,6 +5,8 @@ import authController from '../controllers/authController.js';
 import { refreshToken } from '../controllers/refreshTokenController.js';
 import { logout } from '../controllers/logoutController.js';
 import resetPasswordController from '../controllers/resetPasswordController.js';
+import verifyEmailController from '../controllers/verifyEmailController.js';
+import googleAuthController from '../controllers/googleAuthController.js';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.post(
   validation.validateResetPassword,
   resetPasswordController.resetPassword
 );
+router.post('/verify-email', verifyEmailController.verifyEmail);
+router.post('/google', googleAuthController.googleSignIn);
 
 export default router;
