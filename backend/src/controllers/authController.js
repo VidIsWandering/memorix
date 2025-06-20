@@ -4,6 +4,8 @@ import User from '../models/User.js';
 import process from 'node:process';
 import crypto from 'crypto';
 import { knex } from '../config/database.js';
+import EmailVerification from '../models/EmailVerification.js';
+import { sendVerificationEmail } from '../utils/emailService.js';
 
 async function register(req, res) {
   try {
@@ -19,12 +21,27 @@ async function register(req, res) {
       password_hash: passwordHash,
       phone,
     });
+    // Generate verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+    await EmailVerification.create({
+      user_id: user.user_id,
+      code,
+      expires_at: expiresAt,
+    });
+    try {
+      await sendVerificationEmail(email, code);
+    } catch (err) {
+      console.error('Send verification email error:', err);
+    }
     return res.status(201).json({
       user_id: user.user_id,
       username: user.username,
       email: user.email,
       phone: user.phone,
       image_url: user.image_url,
+      is_verified: user.is_verified,
+      message: 'Verification code sent to your email.',
     });
   } catch (error) {
     console.error(error);
@@ -38,6 +55,9 @@ const login = async (req, res) => {
     const user = await User.findByEmail(email);
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    if (!user.is_verified) {
+      return res.status(403).json({ error: 'Email not verified' });
     }
     const accessToken = jwt.sign(
       { userId: user.user_id },
@@ -62,6 +82,7 @@ const login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         image_url: user.image_url,
+        is_verified: user.is_verified,
       },
     });
   } catch (error) {

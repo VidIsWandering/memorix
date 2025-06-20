@@ -4,7 +4,14 @@ const User = {
   create: async (data) => {
     const [user] = await knex('users')
       .insert(data)
-      .returning(['user_id', 'username', 'email', 'phone', 'image_url']);
+      .returning([
+        'user_id',
+        'username',
+        'email',
+        'phone',
+        'image_url',
+        'is_verified',
+      ]);
     return user;
   },
   findByEmail: async (email) => {
@@ -17,7 +24,14 @@ const User = {
     const updatedUser = await knex('users')
       .where({ user_id: userId })
       .update(updates)
-      .returning(['user_id', 'username', 'email', 'phone', 'image_url']);
+      .returning([
+        'user_id',
+        'username',
+        'email',
+        'phone',
+        'image_url',
+        'is_verified',
+      ]);
     return updatedUser[0] || null;
   },
 };

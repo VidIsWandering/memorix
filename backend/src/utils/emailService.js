@@ -45,3 +45,26 @@ export const sendPasswordResetEmail = async (to, resetToken) => {
     throw error;
   }
 };
+
+export const sendVerificationEmail = async (to, code) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: 'Verify Your Email - Memorix',
+      html: `
+        <h1>Verify Your Email</h1>
+        <p>Thank you for registering. Here is your verification code:</p>
+        <h2 style="background-color: #f5f5f5; padding: 10px; text-align: center; font-family: monospace;">${code}</h2>
+        <p>Enter this code in the Memorix app to verify your email.</p>
+        <p>This code will expire in 15 minutes.</p>
+        <p>If you didn't register, please ignore this email.</p>
+        <p>Best regards,<br>Memorix Team</p>
+      `,
+    };
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Send verification email error:', error);
+    throw error;
+  }
+};
