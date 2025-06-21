@@ -2,15 +2,19 @@ import Deck from '../models/Deck.js';
 
 // Tạo bộ thẻ mới
 const createDeck = async (req, res) => {
-  console.log('req.body:', req.body);
-  console.log('req.user:', req.user);
   try {
-    const { name, description, is_public } = req.body;
+    const { name, description, is_public, image_url } = req.body;
     const user_id = req.user?.userId;
     if (!user_id || !name) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const deck = await Deck.create({ user_id, name, description, is_public });
+    const deck = await Deck.create({
+      user_id,
+      name,
+      description,
+      is_public,
+      image_url,
+    });
     return res.status(201).json(deck);
   } catch (error) {
     console.error(error);
@@ -18,14 +22,20 @@ const createDeck = async (req, res) => {
   }
 };
 
-// Lấy tất cả bộ thẻ của user hiện tại
+// Lấy tất cả bộ thẻ của user hiện tại, hỗ trợ tìm kiếm theo tên, trả về theo thứ tự tên
 const getDecks = async (req, res) => {
   try {
     const user_id = req.user?.userId;
     if (!user_id) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const decks = await Deck.findByUserId(user_id);
+    const { q } = req.query;
+    let decks;
+    if (q) {
+      decks = await Deck.searchByName(user_id, q);
+    } else {
+      decks = await Deck.findByUserId(user_id);
+    }
     return res.json(decks);
   } catch (error) {
     console.error(error);
@@ -56,7 +66,7 @@ const getDeck = async (req, res) => {
 const updateDeck = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, is_public } = req.body;
+    const { name, description, is_public, image_url } = req.body;
     const deck = await Deck.findById(id);
     if (!deck) {
       return res.status(404).json({ error: 'Deck not found' });
@@ -64,7 +74,12 @@ const updateDeck = async (req, res) => {
     if (deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const updated = await Deck.update(id, { name, description, is_public });
+    const updated = await Deck.update(id, {
+      name,
+      description,
+      is_public,
+      image_url,
+    });
     return res.json(updated);
   } catch (error) {
     console.error(error);

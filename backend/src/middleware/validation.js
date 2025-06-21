@@ -98,6 +98,10 @@ const validateDeck = [
     .optional()
     .isBoolean()
     .withMessage('is_public must be boolean'),
+  body('image_url')
+    .optional()
+    .isURL()
+    .withMessage('image_url must be a valid URL'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -109,8 +113,7 @@ const validateDeck = [
 
 const validateFlashcard = [
   body('deck_id')
-    .notEmpty()
-    .withMessage('deck_id is required')
+    .if(body('deck_id').exists()) // Chỉ validate nếu có deck_id trong body
     .isInt({ min: 1 })
     .withMessage('deck_id must be a positive integer'),
   body('card_type')

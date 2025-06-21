@@ -6,13 +6,24 @@ const Deck = {
     return deck;
   },
   findByUserId: async (userId) => {
-    return await knex('decks').where({ user_id: userId });
+    return await knex('decks')
+      .where({ user_id: userId })
+      .orderBy('name', 'asc');
+  },
+  searchByName: async (userId, q) => {
+    return await knex('decks')
+      .where({ user_id: userId })
+      .andWhere('name', 'ilike', `%${q}%`)
+      .orderBy('name', 'asc');
   },
   findById: async (deckId) => {
     return await knex('decks').where({ deck_id: deckId }).first();
   },
   update: async (deckId, data) => {
-    const [deck] = await knex('decks').where({ deck_id: deckId }).update(data).returning('*');
+    const [deck] = await knex('decks')
+      .where({ deck_id: deckId })
+      .update(data)
+      .returning('*');
     return deck;
   },
   delete: async (deckId) => {

@@ -1,3 +1,4 @@
+import Deck from '../models/Deck.js';
 import Flashcard from '../models/Flashcard.js';
 
 // Tạo flashcard mới cho 1 deck
@@ -6,6 +7,11 @@ const createFlashcard = async (req, res) => {
     const { deck_id, card_type, content } = req.body;
     if (!deck_id || !card_type || !content) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    // Kiểm tra deck có thuộc user không
+    const deck = await Deck.findById(deck_id);
+    if (!deck || deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     const flashcard = await Flashcard.create({ deck_id, card_type, content });
     return res.status(201).json(flashcard);
@@ -18,6 +24,11 @@ const createFlashcard = async (req, res) => {
 const getFlashcards = async (req, res) => {
   try {
     const { deckId } = req.params;
+    // Kiểm tra deck có thuộc user không
+    const deck = await Deck.findById(deckId);
+    if (!deck || deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const flashcards = await Flashcard.findByDeckId(deckId);
     return res.json(flashcards);
   } catch (error) {
@@ -33,6 +44,11 @@ const getFlashcard = async (req, res) => {
     const flashcard = await Flashcard.findById(flashcardId);
     if (!flashcard) {
       return res.status(404).json({ error: 'Flashcard not found' });
+    }
+    // Kiểm tra deck có thuộc user không
+    const deck = await Deck.findById(flashcard.deck_id);
+    if (!deck || deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     return res.json(flashcard);
   } catch (error) {
@@ -50,6 +66,11 @@ const updateFlashcard = async (req, res) => {
     if (!flashcard) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
+    // Kiểm tra deck có thuộc user không
+    const deck = await Deck.findById(flashcard.deck_id);
+    if (!deck || deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     const updated = await Flashcard.update(flashcardId, { card_type, content });
     return res.json(updated);
   } catch (error) {
@@ -65,6 +86,11 @@ const deleteFlashcard = async (req, res) => {
     const flashcard = await Flashcard.findById(flashcardId);
     if (!flashcard) {
       return res.status(404).json({ error: 'Flashcard not found' });
+    }
+    // Kiểm tra deck có thuộc user không
+    const deck = await Deck.findById(flashcard.deck_id);
+    if (!deck || deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     await Flashcard.delete(flashcardId);
     return res.json({ success: true });
