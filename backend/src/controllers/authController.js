@@ -10,9 +10,15 @@ import { sendVerificationEmail } from '../utils/emailService.js';
 async function register(req, res) {
   try {
     const { username, email, password, phone } = req.body;
+    // Kiểm tra email đã tồn tại
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
+    }
+    // Kiểm tra username đã tồn tại
+    const existingUsername = await knex('users').where({ username }).first();
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already exists' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({
