@@ -122,6 +122,7 @@ export async function up(knex) {
       .onDelete('CASCADE');
     table.string('permission_level').notNullable();
     table.timestamp('shared_at').defaultTo(knex.fn.now());
+    table.string('status').notNullable().defaultTo('pending'); // pending, accepted, declined
     table.check('?? IS NOT NULL OR ?? IS NOT NULL', [
       'shared_with_user_id',
       'shared_with_group_id',

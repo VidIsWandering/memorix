@@ -145,9 +145,26 @@ const validateGroup = (_req, res, next) => {
   return next();
 };
 
-const validateShare = (_req, res, next) => {
-  return next();
-};
+const validateShare = [
+  body('deck_id')
+    .isInt({ min: 1 })
+    .withMessage('deck_id must be a positive integer'),
+  body('receiver_email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('receiver_email must be a valid email'),
+  body('permission_level')
+    .notEmpty()
+    .isString()
+    .withMessage('permission_level is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    return next();
+  },
+];
 
 const validateDevice = (_req, res, next) => {
   return next();
