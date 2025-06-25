@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 export async function seed(knex) {
   // 1. Tạo user public nếu chưa có
   let publicUser = await knex('users')
@@ -14,7 +15,22 @@ export async function seed(knex) {
       .returning('*');
     publicUser = user;
   }
-
+  
+let demoUser = await knex('users')
+    .where({ email: 'demo@memorix.com' })
+    .first();
+  if (!demoUser) {
+    const passwordHash = await bcrypt.hash('demo123', 10);
+    const [user] = await knex('users')
+      .insert({
+        username: 'demo',
+        email: 'demo@memorix.com',
+        password_hash: passwordHash,
+        is_verified: true,
+      })
+      .returning('*');
+    demoUser = user;
+  }
   // --------- Deck 1: 100 English Communication Words ---------
   const [deck1] = await knex('decks')
     .insert({

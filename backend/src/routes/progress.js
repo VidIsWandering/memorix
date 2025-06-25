@@ -12,5 +12,11 @@ router.post(
   progressController.updateProgress
 );
 router.get('/due', auth, progressController.getDueFlashcards);
-
+router.get('/unlearned', auth, progressController.getUnlearnedFlashcards);
+router.put(
+  '/',
+  auth,
+  validation.validateProgress, 
+  progressController.updateProgressManual
+);
 export default router;

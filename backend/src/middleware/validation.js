@@ -137,10 +137,21 @@ const validateFlashcard = [
   },
 ];
 
-const validateProgress = (_req, res, next) => {
-  return next();
-};
-
+const validateProgress = [
+  body('flashcard_id')
+    .isInt({ min: 1 })
+    .withMessage('flashcard_id must be a positive integer'),
+  body('rating')
+    .isIn(['again', 'hard', 'good', 'easy'])
+    .withMessage('rating must be one of: again, hard, good, easy'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
 const validateGroup = (_req, res, next) => {
   return next();
 };
