@@ -7,7 +7,7 @@ const router = Router();
 
 router.post('/', auth, validation.validateProgress, progressController.updateProgress);
 router.get('/due', auth, progressController.getDueFlashcards);
-router.get('/unlearned', auth, progressController.getUnlearnedFlashcards);
+router.get('/unlearned', auth, progressController.getUnlearnedAndLearnedFlashcards);
 router.put('/', auth, validation.validateProgress, progressController.updateProgressManual);
 
 export default router;
