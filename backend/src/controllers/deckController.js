@@ -36,13 +36,19 @@ const getDecks = async (req, res) => {
     } else {
       decks = await Deck.findByUserId(user_id);
     }
-    return res.json(decks);
+    // Thêm total_cards cho từng deck
+    const decksWithCount = await Promise.all(
+      decks.map(async (deck) => ({
+        ...deck,
+        total_cards: await Deck.countCards(deck.deck_id),
+      }))
+    );
+    return res.json(decksWithCount);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Failed to fetch decks' });
   }
 };
-
 // Lấy thông tin 1 bộ thẻ
 const getDeck = async (req, res) => {
   try {
@@ -51,11 +57,12 @@ const getDeck = async (req, res) => {
     if (!deck) {
       return res.status(404).json({ error: 'Deck not found' });
     }
-    // Nếu deck không public và không phải của user thì không cho xem
     if (!deck.is_public && deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    return res.json(deck);
+    // Thêm total_cards
+    const total_cards = await Deck.countCards(deck.deck_id);
+    return res.json({ ...deck, total_cards });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Failed to fetch deck' });

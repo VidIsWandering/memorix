@@ -18,6 +18,11 @@ const Deck = {
   },
   findById: async (deckId) => {
     return await knex('decks').where({ deck_id: deckId }).first();
+  },countCards: async (deckId) => {
+    const [{ count }] = await knex('flashcards')
+      .where({ deck_id: deckId })
+      .count();
+    return parseInt(count, 10);
   },
   update: async (deckId, data) => {
     const [deck] = await knex('decks')
