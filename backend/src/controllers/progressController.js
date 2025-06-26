@@ -31,19 +31,21 @@ export async function getDueFlashcards(req, res) {
   }
 }
 
-export async function getUnlearnedFlashcards(req, res) {
+export async function getUnlearnedAndLearnedFlashcards(req, res) {
   try {
     const user_id = getUserId(req);
     const decks = await Deck.findByUserId(user_id);
     const deckIds = decks.map(d => d.deck_id);
-    if (deckIds.length === 0) return res.json({ unlearned: [] });
+    if (deckIds.length === 0) return res.json({ unlearned: [], learned: [] });
 
     const allFlashcards = await Flashcard.findByDeckIds(deckIds);
     const learned = await Progress.findAllByUserId(user_id);
     const learnedIds = learned.map(p => p.flashcard_id);
 
     const unlearned = allFlashcards.filter(f => !learnedIds.includes(f.flashcard_id));
-    res.json({ unlearned });
+    const learnedFlashcards = allFlashcards.filter(f => learnedIds.includes(f.flashcard_id));
+
+    res.json({ unlearned, learned: learnedFlashcards });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
