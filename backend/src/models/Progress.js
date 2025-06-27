@@ -31,7 +31,18 @@ findAllByUserId: async (user_id) => {
       .where({ user_id, flashcard_id })
       .update(data)
       .returning('*');
-  },
+  },getReviewStats: async (user_id, days = 30) => {
+  // Đếm số lần review mỗi ngày trong N ngày gần nhất
+  return await knex('user_flashcard_progress')
+    .where({ user_id })
+    .where('last_reviewed_at', '>=', knex.raw(`CURRENT_DATE - INTERVAL '${days} days'`))
+    .select(
+      knex.raw(`DATE(last_reviewed_at) as date`),
+      knex.raw('COUNT(*) as count')
+    )
+    .groupByRaw('DATE(last_reviewed_at)')
+    .orderBy('date', 'asc');
+},
 };
 
 export default Progress;

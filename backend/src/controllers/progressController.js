@@ -77,3 +77,40 @@ export async function updateProgressManual(req, res) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
 }
+export async function getReviewStats(req, res) {
+  try {
+    const user_id = getUserId(req);
+
+    // Lấy thống kê số lần review mỗi ngày trong 30 ngày gần nhất
+    const stats = await Progress.getReviewStats(user_id, 30);
+
+    // Tính tổng số review trong 7 ngày và 30 ngày
+    const now = new Date();
+    const daysAgo = (n) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() - n);
+      return d;
+    };
+
+    const last7Days = stats.filter(s => new Date(s.date) >= daysAgo(7));
+    const last30Days = stats;
+
+    const total7 = last7Days.reduce((sum, s) => sum + Number(s.count), 0);
+    const total30 = last30Days.reduce((sum, s) => sum + Number(s.count), 0);
+
+    res.json({
+      last7Days: {
+        total: total7,
+        average: +(total7 / 7).toFixed(2),
+        daily: last7Days,
+      },
+      last30Days: {
+        total: total30,
+        average: +(total30 / 30).toFixed(2),
+        daily: last30Days,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+}
