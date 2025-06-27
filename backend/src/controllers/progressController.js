@@ -1,4 +1,4 @@
-import * as ProgressService from '../../services/progressService.js';
+import * as progressService from '../utils/progressService.js';
 import Progress from '../models/Progress.js';
 import Flashcard from '../models/Flashcard.js';
 import Deck from '../models/Deck.js';

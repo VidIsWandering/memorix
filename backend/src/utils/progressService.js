@@ -1,6 +1,7 @@
-import Progress from '../src/models/Progress.js';
-import Flashcard from '../src/models/Flashcard.js';
-import Deck from '../src/models/Deck.js';
+import Progress from '../models/Progress.js';
+import Flashcard from '../models/Flashcard.js';
+import Deck from '../models/Deck.js';
+
 
 export function calculateSM2({ ease_factor = 2.5, interval_days = 1, repetitions = 0, rating }) {
   const ratingMap = { again: 0, hard: 3, good: 4, easy: 5 };
