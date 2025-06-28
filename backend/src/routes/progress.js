@@ -7,8 +7,9 @@ const router = Router();
 
 router.post('/', auth, validation.validateProgress, progressController.updateProgress);
 router.get('/due', auth, progressController.getDueFlashcards);
-router.get('/unlearned', auth, progressController.getUnlearnedAndLearnedFlashcards);
+router.get('/unlearnedAndlearned', auth, progressController.getUnlearnedAndLearnedFlashcards);
 router.put('/', auth, validation.validateProgress, progressController.updateProgressManual);
 router.get('/stats', auth, progressController.getReviewStats);
+router.get('/streak', auth, progressController.getReviewStreak);
 export default router;
     

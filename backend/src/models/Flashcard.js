@@ -17,6 +17,10 @@ const Flashcard = {
   findById: async (flashcard_id) => {
     return await knex('flashcards').where({ flashcard_id }).first();
   },
+  findByIds: async (flashcardIds) => {
+  if (!flashcardIds.length) return [];
+  return await knex('flashcards').whereIn('flashcard_id', flashcardIds);
+},
   update: async (flashcard_id, data) => {
     const [updated] = await knex('flashcards')
       .where({ flashcard_id })

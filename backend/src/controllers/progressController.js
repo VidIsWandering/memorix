@@ -2,6 +2,7 @@ import * as progressService from '../utils/progressService.js';
 import Progress from '../models/Progress.js';
 import Flashcard from '../models/Flashcard.js';
 import Deck from '../models/Deck.js';
+import User from '../models/User.js';
 
 const getUserId = (req) => req.user.user_id || req.user.userId;
 
@@ -9,7 +10,7 @@ export async function updateProgress(req, res) {
   try {
     const user_id = getUserId(req);
     const { flashcard_id, rating } = req.body;
-    const updated = await ProgressService.updateUserProgress(user_id, flashcard_id, rating);
+    const updated = await progressService.updateUserProgress(user_id, flashcard_id, rating);
     res.json({ progress: updated });
   } catch (err) {
     if (err.message === 'flashcard_not_found')
@@ -24,8 +25,28 @@ export async function getDueFlashcards(req, res) {
   try {
     const user_id = getUserId(req);
     const now = new Date();
+    // Lấy các flashcard đến hạn
     const due = await Progress.findDueByUserId(user_id, now);
-    res.json({ due });
+
+    // Lấy thông tin card_type cho từng flashcard_id
+    const flashcardIds = due.map(d => d.flashcard_id);
+    const flashcards = await Flashcard.findByIds(flashcardIds); // Bạn cần có hàm này trong model Flashcard
+
+    // Tạo map flashcard_id -> card_type
+    const typeMap = {};
+    flashcards.forEach(f => {
+      typeMap[f.flashcard_id] = f.card_type;
+    });
+
+    // Gom nhóm theo card_type
+    const grouped = {};
+    due.forEach(item => {
+      const type = typeMap[item.flashcard_id] || 'unknown';
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push(item);
+    });
+
+    res.json({ due: grouped });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
@@ -36,7 +57,7 @@ export async function getUnlearnedAndLearnedFlashcards(req, res) {
     const user_id = getUserId(req);
     const decks = await Deck.findByUserId(user_id);
     const deckIds = decks.map(d => d.deck_id);
-    if (deckIds.length === 0) return res.json({ unlearned: [], learned: [] });
+    if (deckIds.length === 0) return res.json({ unlearned: {}, learned: {} });
 
     const allFlashcards = await Flashcard.findByDeckIds(deckIds);
     const learned = await Progress.findAllByUserId(user_id);
@@ -45,7 +66,21 @@ export async function getUnlearnedAndLearnedFlashcards(req, res) {
     const unlearned = allFlashcards.filter(f => !learnedIds.includes(f.flashcard_id));
     const learnedFlashcards = allFlashcards.filter(f => learnedIds.includes(f.flashcard_id));
 
-    res.json({ unlearned, learned: learnedFlashcards });
+    // Nhóm theo card_type
+    const groupByType = (arr) => {
+      const grouped = {};
+      arr.forEach(item => {
+        const type = item.card_type || 'unknown';
+        if (!grouped[type]) grouped[type] = [];
+        grouped[type].push(item);
+      });
+      return grouped;
+    };
+
+    res.json({
+      unlearned: groupByType(unlearned),
+      learned: groupByType(learnedFlashcards)
+    });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
@@ -110,6 +145,51 @@ export async function getReviewStats(req, res) {
         daily: last30Days,
       }
     });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+}
+export async function getReviewStreak(req, res) {
+  try {
+    const user_id = getUserId(req);
+    const stats = await Progress.getReviewStats(user_id, 60);
+    const days = Array.from(new Set(stats.map(s => s.date))).sort();
+
+    let currentStreak = 0;
+    let maxStreak = 0;
+    let streak = 0;
+    let prevDate = null;
+    const today = new Date().toISOString().slice(0, 10);
+
+    for (let i = 0; i < days.length; i++) {
+      const date = days[i];
+      if (!prevDate) {
+        streak = 1;
+      } else {
+        const prev = new Date(prevDate);
+        const curr = new Date(date);
+        const diff = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+        streak = diff === 1 ? streak + 1 : 1;
+      }
+      if (streak > maxStreak) maxStreak = streak;
+      prevDate = date;
+    }
+
+    if (days.length > 0) {
+      const lastDate = days[days.length - 1];
+      const last = new Date(lastDate);
+      const now = new Date(today);
+      const diff = Math.round((now - last) / (1000 * 60 * 60 * 24));
+      currentStreak = (diff === 0 || diff === 1) ? streak : 0;
+    }
+
+    // Lưu vào DB
+    await User.update(user_id, {
+      current_review_streak: currentStreak,
+      max_review_streak: maxStreak,
+    });
+
+    res.json({ currentStreak, maxStreak });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }
