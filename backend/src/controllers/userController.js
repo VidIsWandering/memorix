@@ -24,14 +24,18 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    const user = await User.findById(req.user.userId); // Lấy user hiện tại
     const { username, email, password, phone, image_url } = req.body;
     const updates = {};
     let emailChanged = false;
     if (username) updates.username = username;
-    if (email) {
+    
+
+    if (email && email !== user.email) {
       updates.email = email;
       emailChanged = true;
     }
+    
     if (password) updates.password_hash = await bcrypt.hash(password, 10);
     if (phone) updates.phone = phone;
     if (image_url) updates.image_url = image_url;
