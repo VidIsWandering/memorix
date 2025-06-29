@@ -1,14 +1,14 @@
 // notificationService.js
-const admin = require('./firebase');
-const db = require('./your-database-connection'); // Kết nối DB tùy bạn
+import admin from './firebase.js';
+import { knex as db } from '../config/database.js'; // Kết nối DB
 
-async function sendNotificationToUser(userId, title, body) {
+export async function sendNotificationToUser(userId, title, body) {
   try {
     // 1. Lấy tất cả fcm_token của user từ bảng user_devices
-    const [rows] = await db.execute(
-      'SELECT fcm_token FROM user_devices WHERE user_id = ? AND fcm_token IS NOT NULL',
-      [userId]
-    );
+    const rows = await db('user_devices')
+      .select('fcm_token')
+      .where('user_id', userId)
+      .whereNotNull('fcm_token');
 
     const tokens = rows.map(row => row.fcm_token);
 
@@ -17,27 +17,28 @@ async function sendNotificationToUser(userId, title, body) {
       return;
     }
 
-    // 2. Gửi notification qua FCM
-    const message = {
+    // 2. Gửi notification qua FCM (dùng sendToDevice cho version cũ)
+    const payload = {
       notification: {
         title,
         body,
       },
-      tokens,
     };
 
-    const response = await admin.messaging().sendMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast({
+  tokens,
+  notification: { title, body }
+});
     console.log('Kết quả gửi:', response.successCount, 'thành công,', response.failureCount, 'thất bại.');
 
     // 3. Xử lý các token lỗi (nếu có)
-    if (response.failureCount > 0) {
+    if (response.failureCount > 0 && response.results) {
       const failedTokens = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
+      response.results.forEach((resp, idx) => {
+        if (resp.error) {
           failedTokens.push(tokens[idx]);
         }
       });
-
       console.log('Token lỗi:', failedTokens);
       // 👉 Có thể xóa các token lỗi này khỏi DB
     }
@@ -45,5 +46,3 @@ async function sendNotificationToUser(userId, title, body) {
     console.error('Lỗi khi gửi thông báo:', err);
   }
 }
-
-module.exports = { sendNotificationToUser };

@@ -49,6 +49,19 @@ const User = {
       ]);
     return updatedUser[0] || null;
   },
+  getAll: async () => {
+    return await knex('users')
+      .select([
+        'user_id',
+        'username',
+        'email',
+        'phone',
+        'image_url',
+        'is_verified',
+        'max_review_streak',        
+        'current_review_streak',
+      ]);
+  },
 };
 
 export default User;

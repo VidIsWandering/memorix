@@ -2,7 +2,7 @@ import Device from '../models/Device.js';
 
 const registerDevice = async (req, res) => {
   try {
-    const user_id = req.user.user_id; // Lấy user_id từ middleware auth
+    const user_id = req.user?.userId;
     const { fcm_token, device_name } = req.body;
 
     // Kiểm tra dữ liệu đầu vào
