@@ -54,6 +54,7 @@ const Share = {
           name: originalDeck.name,
           description: originalDeck.description,
           image_url: originalDeck.image_url,
+          category: originalDeck.category, 
           is_public: false, // Mặc định set private cho deck được clone
         })
         .returning('*');
@@ -81,16 +82,20 @@ const Share = {
   createShare: async ({
     deck_id,
     shared_by_user_id,
-    shared_with_user_id,
+    shared_with_user_id = null,
+    shared_with_group_id = null,
     permission_level,
+    status = 'pending',
   }) => {
     const [share] = await knex('deck_shares')
       .insert({
         deck_id,
         shared_by_user_id,
         shared_with_user_id,
+        shared_with_group_id,
         permission_level,
-        status: 'pending',
+        status,
+        shared_at: knex.fn.now(),
       })
       .returning('*');
     return share;
@@ -125,6 +130,7 @@ const Share = {
           name: originalDeck.name,
           description: originalDeck.description,
           image_url: originalDeck.image_url,
+          category: originalDeck.category, 
           is_public: false,
         })
         .returning('*');
