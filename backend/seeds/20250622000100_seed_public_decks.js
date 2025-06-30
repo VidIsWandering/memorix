@@ -40,6 +40,7 @@ let demoUser = await knex('users')
         '100 từ vựng tiếng Anh giao tiếp cơ bản, thường gặp trong đời sống hàng ngày. Phù hợp cho người mới bắt đầu hoặc ôn luyện nền tảng.',
       is_public: true,
       image_url: null,
+      category: 'Tiếng Anh',
     })
     .returning('*');
 
@@ -225,6 +226,7 @@ let demoUser = await knex('users')
         '40 câu hỏi trắc nghiệm về các mốc sự kiện quan trọng trong lịch sử Việt Nam. Mỗi câu có 4 đáp án, chọn đáp án đúng.',
       is_public: true,
       image_url: null,
+      category: 'Lịch sử',
     })
     .returning('*');
 
@@ -520,6 +522,7 @@ let demoUser = await knex('users')
         '50 cụm từ tiếng Việt cơ bản dành cho du khách, giúp giao tiếp trong các tình huống du lịch như hỏi đường, mua sắm, và ăn uống.',
       is_public: true,
       image_url: null,
+      category: 'Ngôn ngữ',
     })
     .returning('*');
 

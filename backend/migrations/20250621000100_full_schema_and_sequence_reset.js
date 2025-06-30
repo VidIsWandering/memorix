@@ -25,6 +25,7 @@ export async function up(knex) {
     table.text('description');
     table.string('image_url');
     table.boolean('is_public').defaultTo(false);
+    table.string('category').notNullable();
   });
 
   await knex.schema.createTable('flashcards', (table) => {

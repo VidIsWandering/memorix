@@ -6,7 +6,7 @@ const Share = {
     return share;
   },
 
-  getPublicDecks: async (searchQuery = null) => {
+  getPublicDecks: async (searchQuery = null, category = null) => {
     let query = knex('decks')
       .where('is_public', true)
       .select('decks.*')
@@ -15,6 +15,10 @@ const Share = {
 
     if (searchQuery) {
       query = query.where('decks.name', 'ilike', `%${searchQuery}%`);
+    }
+
+    if (category) {
+      query = query.where('decks.category', category);
     }
 
     return query.orderBy('decks.name');
