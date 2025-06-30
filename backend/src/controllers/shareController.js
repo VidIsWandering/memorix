@@ -2,13 +2,18 @@ import Share from '../models/Share.js';
 
 const shareController = {
   // GET /api/shares/public-decks
-  // Lấy danh sách tất cả public decks
+  // Lấy danh sách tất cả public decks, hỗ trợ tìm kiếm theo tên và category
   listPublicDecks: async (req, res) => {
     try {
-      const publicDecks = await Share.getPublicDecks();
+      const { q, category } = req.query;
+      const [publicDecks, total] = await Promise.all([
+        Share.getPublicDecks(q, category),
+        Share.getPublicDecksCount(q, category),
+      ]);
       res.json({
         success: true,
         data: publicDecks,
+        total,
       });
     } catch (error) {
       console.error('Error listing public decks:', error);

@@ -6,7 +6,7 @@ const Share = {
     return share;
   },
 
-  getPublicDecks: async (searchQuery = null) => {
+  getPublicDecks: async (searchQuery = null, category = null) => {
     let query = knex('decks')
       .where('is_public', true)
       .select('decks.*')
@@ -17,7 +17,23 @@ const Share = {
       query = query.where('decks.name', 'ilike', `%${searchQuery}%`);
     }
 
+    if (category) {
+      query = query.where('decks.category', category);
+    }
+
     return query.orderBy('decks.name');
+  },
+
+  getPublicDecksCount: async (searchQuery = null, category = null) => {
+    let query = knex('decks').where('is_public', true);
+    if (searchQuery) {
+      query = query.where('decks.name', 'ilike', `%${searchQuery}%`);
+    }
+    if (category) {
+      query = query.where('decks.category', category);
+    }
+    const [{ count }] = await query.count();
+    return parseInt(count, 10);
   },
 
   cloneDeck: async (deckId, userId) => {

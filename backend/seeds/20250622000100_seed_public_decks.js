@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 export async function seed(knex) {
   // 1. Tạo user public nếu chưa có
   let publicUser = await knex('users')
@@ -14,7 +15,22 @@ export async function seed(knex) {
       .returning('*');
     publicUser = user;
   }
-
+  
+let demoUser = await knex('users')
+    .where({ email: 'demo@memorix.com' })
+    .first();
+  if (!demoUser) {
+    const passwordHash = await bcrypt.hash('demo123', 10);
+    const [user] = await knex('users')
+      .insert({
+        username: 'demo',
+        email: 'demo@memorix.com',
+        password_hash: passwordHash,
+        is_verified: true,
+      })
+      .returning('*');
+    demoUser = user;
+  }
   // --------- Deck 1: 100 English Communication Words ---------
   const [deck1] = await knex('decks')
     .insert({
@@ -24,6 +40,7 @@ export async function seed(knex) {
         '100 từ vựng tiếng Anh giao tiếp cơ bản, thường gặp trong đời sống hàng ngày. Phù hợp cho người mới bắt đầu hoặc ôn luyện nền tảng.',
       is_public: true,
       image_url: null,
+      category: 'Tiếng Anh',
     })
     .returning('*');
 
@@ -209,6 +226,7 @@ export async function seed(knex) {
         '40 câu hỏi trắc nghiệm về các mốc sự kiện quan trọng trong lịch sử Việt Nam. Mỗi câu có 4 đáp án, chọn đáp án đúng.',
       is_public: true,
       image_url: null,
+      category: 'Lịch sử',
     })
     .returning('*');
 
@@ -504,6 +522,7 @@ export async function seed(knex) {
         '50 cụm từ tiếng Việt cơ bản dành cho du khách, giúp giao tiếp trong các tình huống du lịch như hỏi đường, mua sắm, và ăn uống.',
       is_public: true,
       image_url: null,
+      category: 'Ngôn ngữ',
     })
     .returning('*');
 

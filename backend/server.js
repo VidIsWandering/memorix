@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import { config } from 'dotenv';
 import routes from './src/routes/index.js';
 import process from 'node:process';
+import cron from 'node-cron';
+import { notifyAllUsersWithDueFlashcards } from './src/utils/notificationScheduler.js';
 
 config();
 
@@ -34,4 +36,10 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Mỗi ngày lúc 8h sáng
+cron.schedule('* * * * *', async () => {
+  console.log('Đang gửi thông báo ôn tập...');
+  await notifyAllUsersWithDueFlashcards();
 });
