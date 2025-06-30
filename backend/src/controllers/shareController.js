@@ -6,10 +6,14 @@ const shareController = {
   listPublicDecks: async (req, res) => {
     try {
       const { q, category } = req.query;
-      const publicDecks = await Share.getPublicDecks(q, category);
+      const [publicDecks, total] = await Promise.all([
+        Share.getPublicDecks(q, category),
+        Share.getPublicDecksCount(q, category),
+      ]);
       res.json({
         success: true,
         data: publicDecks,
+        total,
       });
     } catch (error) {
       console.error('Error listing public decks:', error);

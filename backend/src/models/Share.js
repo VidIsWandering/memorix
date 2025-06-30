@@ -24,6 +24,18 @@ const Share = {
     return query.orderBy('decks.name');
   },
 
+  getPublicDecksCount: async (searchQuery = null, category = null) => {
+    let query = knex('decks').where('is_public', true);
+    if (searchQuery) {
+      query = query.where('decks.name', 'ilike', `%${searchQuery}%`);
+    }
+    if (category) {
+      query = query.where('decks.category', category);
+    }
+    const [{ count }] = await query.count();
+    return parseInt(count, 10);
+  },
+
   cloneDeck: async (deckId, userId) => {
     return knex.transaction(async (trx) => {
       // Kiểm tra và lấy deck gốc
