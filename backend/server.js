@@ -14,7 +14,9 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(morgan('dev'));
-app.use(json());
+app.use(json({ limit: '10mb' })); // hoặc cao hơn nếu cần
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 
 // Routes
 app.use('/api', routes);

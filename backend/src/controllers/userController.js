@@ -48,6 +48,8 @@ const updateUser = async (req, res) => {
     if (emailChanged) {
       updates.is_verified = false;
     }
+    console.log('Update fields:', updates);
+
     const updatedUser = await User.update(req.user.userId, updates);
     if (!updatedUser) {
       return res.status(404).json({ errors: [{ msg: 'User not found' }] });
@@ -69,6 +71,9 @@ const updateUser = async (req, res) => {
         console.error('Send verification email error:', err);
       }
       updatedUser.is_verified = false;
+      console.log('Updated user:', updatedUser);
+      console.log('Update body:', req.body);
+
       return res.json({
         ...updatedUser,
         message: 'Verification code sent to your new email.',
