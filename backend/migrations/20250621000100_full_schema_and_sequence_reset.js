@@ -3,14 +3,16 @@
 export async function up(knex) {
   // Tạo bảng
   await knex.schema.createTable('users', (table) => {
-    table.increments('user_id').primary();
-    table.string('username').unique().notNullable();
-    table.string('email').unique().notNullable();
-    table.string('password_hash').notNullable();
-    table.string('phone').nullable();
-    table.string('image_url').nullable();
-    table.boolean('is_verified').defaultTo(false);
-  });
+  table.increments('user_id').primary();
+  table.string('username').unique().notNullable();
+  table.string('email').unique().notNullable();
+  table.string('password_hash').notNullable();
+  table.string('phone').nullable();
+  table.string('image_url').nullable();
+  table.boolean('is_verified').defaultTo(false);
+  table.integer('max_review_streak').defaultTo(0);        
+  table.integer('current_review_streak').defaultTo(0);    
+});
 
   await knex.schema.createTable('decks', (table) => {
     table.increments('deck_id').primary();
@@ -23,6 +25,7 @@ export async function up(knex) {
     table.text('description');
     table.string('image_url');
     table.boolean('is_public').defaultTo(false);
+    table.string('category').notNullable();
   });
 
   await knex.schema.createTable('flashcards', (table) => {

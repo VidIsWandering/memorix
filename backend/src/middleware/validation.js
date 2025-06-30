@@ -110,37 +110,93 @@ const validateDeck = [
     return next();
   },
 ];
-
 const validateFlashcard = [
   body('deck_id')
-    .if(body('deck_id').exists()) // Chỉ validate nếu có deck_id trong body
+    .optional()
     .isInt({ min: 1 })
     .withMessage('deck_id must be a positive integer'),
+
   body('card_type')
     .notEmpty()
     .withMessage('card_type is required')
     .isIn(['two_sided', 'multiple_choice', 'fill_in_blank'])
-    .withMessage(
-      'card_type must be one of: two_sided, multiple_choice, fill_in_blank'
-    ),
+    .withMessage('card_type must be one of: two_sided, multiple_choice, fill_in_blank'),
+
   body('content')
     .notEmpty()
     .withMessage('content is required')
     .isObject()
     .withMessage('content must be an object'),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+
+    const { card_type, content } = req.body;
+
+    const isNonEmptyString = (str) =>
+      typeof str === 'string' && str.trim().length > 0;
+
+    switch (card_type) {
+      case 'two_sided':
+        if (!isNonEmptyString(content.front) || !isNonEmptyString(content.back)) {
+          return res.status(400).json({
+            error: 'content must include non-empty "front" and "back" strings for two_sided card',
+          });
+        }
+        break;
+
+      case 'multiple_choice':
+        if (
+          !isNonEmptyString(content.question) ||
+          !Array.isArray(content.options) ||
+          content.options.length !== 4 ||
+          !isNonEmptyString(content.answer) ||
+          !content.options.includes(content.answer)
+        ) {
+          return res.status(400).json({
+            error:
+              'multiple_choice content must have: "question" (string), exactly 4 "options", and "answer" (string in options)',
+          });
+        }
+        break;
+
+      case 'fill_in_blank':
+        if (
+          !isNonEmptyString(content.text) ||
+          !content.text.includes('_') ||  // chỉ cần có ít nhất 1 dấu _
+          !isNonEmptyString(content.answer)
+        ) {
+          return res.status(400).json({
+            error:
+              'fill_in_blank content must have "text" (string containing at least one "_") and non-empty "answer"',
+          });
+        }
+        break;
+    }
+
     return next();
   },
 ];
 
-const validateProgress = (_req, res, next) => {
-  return next();
-};
 
+const validateProgress = [
+  body('flashcard_id')
+    .isInt({ min: 1 })
+    .withMessage('flashcard_id must be a positive integer'),
+  body('rating')
+    .isIn(['again', 'hard', 'good', 'easy'])
+    .withMessage('rating must be one of: again, hard, good, easy'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
 const validateGroup = (_req, res, next) => {
   return next();
 };
@@ -166,9 +222,24 @@ const validateShare = [
   },
 ];
 
-const validateDevice = (_req, res, next) => {
-  return next();
-};
+const validateDevice = [
+  body('fcm_token')
+    .notEmpty()
+    .withMessage('FCM token is required')
+    .isString()
+    .withMessage('FCM token must be a string'),
+  body('device_name')
+    .optional()
+    .isString()
+    .withMessage('Device name must be a string'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    return next();
+  },
+];
 
 const validateChangePassword = (req, res, next) => {
   const { currentPassword, newPassword } = req.body;

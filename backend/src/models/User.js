@@ -11,6 +11,8 @@ const User = {
         'phone',
         'image_url',
         'is_verified',
+        'max_review_streak',        
+        'current_review_streak', 
       ]);
     return user;
   },
@@ -18,7 +20,18 @@ const User = {
     return await knex('users').where({ email }).first();
   },
   findById: async (userId) => {
-    return await knex('users').where({ user_id: userId }).first();
+    return await knex('users')
+      .where({ user_id: userId })
+      .first([
+        'user_id',
+        'username',
+        'email',
+        'phone',
+        'image_url',
+        'is_verified',
+        'max_review_streak',        
+        'current_review_streak',    
+      ]);
   },
   update: async (userId, updates) => {
     const updatedUser = await knex('users')
@@ -31,8 +44,23 @@ const User = {
         'phone',
         'image_url',
         'is_verified',
+        'max_review_streak',       
+        'current_review_streak',
       ]);
     return updatedUser[0] || null;
+  },
+  getAll: async () => {
+    return await knex('users')
+      .select([
+        'user_id',
+        'username',
+        'email',
+        'phone',
+        'image_url',
+        'is_verified',
+        'max_review_streak',        
+        'current_review_streak',
+      ]);
   },
 };
 
