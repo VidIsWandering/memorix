@@ -11,5 +11,5 @@ router.get('/unlearnedAndlearned', auth, progressController.getUnlearnedAndLearn
 router.put('/', auth, validation.validateProgress, progressController.updateProgressManual);
 router.get('/stats', auth, progressController.getReviewStats);
 router.get('/streak', auth, progressController.getReviewStreak);
+router.get('/dueByDeck/:deckId', auth, progressController.getDueFlashcardsByDeck);
 export default router;
-    

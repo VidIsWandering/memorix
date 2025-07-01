@@ -25,27 +25,19 @@ export async function getDueFlashcards(req, res) {
   try {
     const user_id = getUserId(req);
     const now = new Date();
-    // Lấy các flashcard đến hạn
-    const due = await Progress.findDueByUserId(user_id, now);
-
-    // Lấy thông tin card_type cho từng flashcard_id
-    const flashcardIds = due.map(d => d.flashcard_id);
-    const flashcards = await Flashcard.findByIds(flashcardIds); // Bạn cần có hàm này trong model Flashcard
-
-    // Tạo map flashcard_id -> card_type
-    const typeMap = {};
-    flashcards.forEach(f => {
-      typeMap[f.flashcard_id] = f.card_type;
-    });
-
+    // Lấy các flashcard đến hạn (progress)
+    const dueProgress = await Progress.findDueByUserId(user_id, now);
+    const flashcardIds = dueProgress.map(d => d.flashcard_id);
+    if (flashcardIds.length === 0) return res.json({ due: {} });
+    // Lấy thông tin flashcard tương ứng
+    const flashcards = await Flashcard.findByIds(flashcardIds);
     // Gom nhóm theo card_type
     const grouped = {};
-    due.forEach(item => {
-      const type = typeMap[item.flashcard_id] || 'unknown';
+    flashcards.forEach(item => {
+      const type = item.card_type || 'unknown';
       if (!grouped[type]) grouped[type] = [];
       grouped[type].push(item);
     });
-
     res.json({ due: grouped });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
@@ -190,6 +182,28 @@ export async function getReviewStreak(req, res) {
     });
 
     res.json({ currentStreak, maxStreak });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+}
+export async function getDueFlashcardsByDeck(req, res) {
+  try {
+    const user_id = getUserId(req);
+    const deck_id = req.params.deckId;
+    if (!deck_id) return res.status(400).json({ error: 'Missing deck_id' });
+    const now = new Date();
+    const dueProgress = await Progress.findDueByUserIdAndDeckId(user_id, deck_id, now);
+    const flashcardIds = dueProgress.map(d => d.flashcard_id);
+    if (flashcardIds.length === 0) return res.json({ due: {} });
+    const flashcards = await Flashcard.findByIds(flashcardIds);
+    // Gom nhóm theo card_type
+    const grouped = {};
+    flashcards.forEach(item => {
+      const type = item.card_type || 'unknown';
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push(item);
+    });
+    res.json({ due: grouped });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }

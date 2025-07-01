@@ -43,6 +43,16 @@ findAllByUserId: async (user_id) => {
     .groupByRaw('DATE(last_reviewed_at)')
     .orderBy('date', 'asc');
 },
+findDueByUserIdAndDeckId: async (user_id, deck_id, now = new Date()) => {
+  // Lấy các flashcard đến hạn theo user_id và deck_id
+  return await knex('user_flashcard_progress as ufp')
+    .join('flashcards as f', 'ufp.flashcard_id', 'f.flashcard_id')
+    .where('ufp.user_id', user_id)
+    .andWhere('f.deck_id', deck_id)
+    .andWhere('ufp.next_review_at', '<=', now)
+    .select('ufp.*')
+    .orderBy('ufp.next_review_at', 'asc');
+},
 };
 
 export default Progress;
