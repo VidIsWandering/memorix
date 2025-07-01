@@ -1,4 +1,5 @@
 import Share from '../models/Share.js';
+import Deck from '../models/Deck.js';
 
 const shareController = {
   // GET /api/shares/public-decks
@@ -10,9 +11,16 @@ const shareController = {
         Share.getPublicDecks(q, category),
         Share.getPublicDecksCount(q, category),
       ]);
+      // Thêm total_cards cho mỗi deck
+      const decksWithTotalCards = await Promise.all(
+        publicDecks.map(async (deck) => {
+          const total_cards = await Deck.countCards(deck.deck_id);
+          return { ...deck, total_cards };
+        })
+      );
       res.json({
         success: true,
-        data: publicDecks,
+        data: decksWithTotalCards,
         total,
       });
     } catch (error) {
