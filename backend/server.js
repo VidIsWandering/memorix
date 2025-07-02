@@ -19,9 +19,19 @@ app.use(morgan('dev'));
 app.use(json({ limit: '10mb' })); // hoặc cao hơn nếu cần
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-
 // Routes
 app.use('/api', routes);
+
+// Cron job for daily notifications
+cron.schedule('* * * * *', async () => {
+  console.log('Running daily notification job...');
+  try {
+    await notifyAllUsersWithDueFlashcards();
+    console.log('Daily notifications sent successfully!');
+  } catch (error) {
+    console.error('Error sending daily notifications:', error);
+  }
+});
 
 // Default route
 app.get('/', (_req, res) => {
@@ -40,8 +50,3 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Mỗi ngày lúc 8h sáng
-cron.schedule('* * * * *', async () => {
-  console.log('Đang gửi thông báo ôn tập...');
-  await notifyAllUsersWithDueFlashcards();
-});
