@@ -3,13 +3,22 @@ import User from '../models/User.js';
 
 const changePassword = async (req, res) => {
   try {
+    
     const userId = req.user.userId;
     const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Missing current or new password' });
+    }
+
+  
 
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    console.log("Received currentPassword:", currentPassword);
+    console.log("User.password_hash:", user.password_hash);
+    console.log("Full user object:", user);
 
     const isValidPassword = await bcrypt.compare(
       currentPassword,
@@ -18,10 +27,9 @@ const changePassword = async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Current password is incorrect' });
     }
-
+   
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
-    console.log("Received currentPassword:", currentPassword);
-console.log("User.password_hash:", user.password_hash);
+    
 
     await User.update(userId, { password_hash: newPasswordHash });
 

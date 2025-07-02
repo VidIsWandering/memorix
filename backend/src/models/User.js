@@ -27,6 +27,7 @@ const User = {
         'username',
         'email',
         'phone',
+        'password_hash',
         'image_url',
         'is_verified',
         'max_review_streak',        

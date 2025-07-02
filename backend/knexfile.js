@@ -15,4 +15,5 @@ export const development = {
   migrations: {
     directory: './migrations',
   },
+  searchPath: ['public'],
 };

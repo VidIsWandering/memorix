@@ -72,7 +72,10 @@ export async function getUnlearnedAndLearnedFlashcards(req, res) {
     res.json({
       unlearned: groupByType(unlearned),
       learned: groupByType(learnedFlashcards)
+
     });
+    console.log('unlearned:', groupByType(unlearned));
+    //console.log('learned:', groupByType(learnedFlashcards));
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }

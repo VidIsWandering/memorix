@@ -63,7 +63,30 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     if (!user.is_verified) {
-      return res.status(403).json({ error: 'Email not verified' });
+            // Xóa mã xác thực cũ nếu đã tồn tại
+        await knex('email_verifications').where({ user_id: user.user_id }).del();
+
+        // Tạo mã mới
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+        await knex('email_verifications').insert({
+          user_id: user.user_id,
+          code,
+          expires_at: expiresAt,
+        });
+
+        try {
+          await sendVerificationEmail(user.email, code);
+        } catch (err) {
+          console.error('Send verification email error:', err);
+        }
+
+        return res.status(403).json({
+          error: 'Email not verified',
+          user_id: user.user_id,
+          email: user.email,
+        });
     }
     const accessToken = jwt.sign(
       { userId: user.user_id },
