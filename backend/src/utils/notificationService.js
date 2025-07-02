@@ -26,21 +26,29 @@ export async function sendNotificationToUser(userId, title, body) {
     };
 
     const response = await admin.messaging().sendEachForMulticast({
-  tokens,
-  notification: { title, body }
-});
+      tokens,
+      notification: { title, body },
+      android: {
+        notification: {
+          priority: 'high',
+          defaultSound: true,
+          defaultVibrateTimings: true,
+        }
+      }
+    });
+    
     console.log('Kết quả gửi:', response.successCount, 'thành công,', response.failureCount, 'thất bại.');
+    console.log('Chi tiết tokens:', tokens);
 
-    // 3. Xử lý các token lỗi (nếu có)
-    if (response.failureCount > 0 && response.results) {
-      const failedTokens = [];
-      response.results.forEach((resp, idx) => {
-        if (resp.error) {
-          failedTokens.push(tokens[idx]);
+    // 3. Xử lý các token lỗi (nếu có) và log chi tiết
+    if (response.results) {
+      response.results.forEach((result, idx) => {
+        if (result.error) {
+          console.log(`❌ Token ${idx + 1} (${tokens[idx]}): ${result.error.code} - ${result.error.message}`);
+        } else {
+          console.log(`✅ Token ${idx + 1} (${tokens[idx]}): Gửi thành công - messageId: ${result.messageId}`);
         }
       });
-      console.log('Token lỗi:', failedTokens);
-      // 👉 Có thể xóa các token lỗi này khỏi DB
     }
   } catch (err) {
     console.error('Lỗi khi gửi thông báo:', err);
