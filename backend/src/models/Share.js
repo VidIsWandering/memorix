@@ -105,10 +105,13 @@ const Share = {
     return await knex('deck_shares')
       .where({ shared_with_user_id: userId, status: 'pending' })
       .join('decks', 'deck_shares.deck_id', 'decks.deck_id')
+      .join('users', 'deck_shares.shared_by_user_id', 'users.user_id')
       .select(
         'deck_shares.*',
         'decks.name as deck_name',
-        'decks.description as deck_description'
+        'decks.description as deck_description',
+        'users.email as shared_by_email',
+        'users.username as shared_by_username'
       );
   },
 
