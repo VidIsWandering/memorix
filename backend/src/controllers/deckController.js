@@ -1,4 +1,5 @@
 import Deck from '../models/Deck.js';
+import { knex } from '../config/database.js';
 
 // Tạo bộ thẻ mới
 const createDeck = async (req, res) => {
@@ -107,7 +108,7 @@ const updateDeck = async (req, res) => {
   }
 };
 
-// Xóa bộ thẻ
+// Xóa mềm bộ thẻ
 const deleteDeck = async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,12 +119,98 @@ const deleteDeck = async (req, res) => {
     if (deck.user_id !== req.user?.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    await Deck.delete(id);
-    return res.json({ success: true });
+    const deletedDeck = await Deck.delete(id);
+    return res.json({ 
+      success: true, 
+      message: 'Deck has been moved to trash',
+      deck: deletedDeck 
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Failed to delete deck' });
   }
 };
 
-export default { createDeck, getDecks, getDeck, updateDeck, deleteDeck };
+// Khôi phục bộ thẻ từ thùng rác
+const restoreDeck = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Tìm deck đã bị xóa mềm
+    const deck = await knex('decks')
+      .where({ deck_id: id })
+      .whereNotNull('deleted_at')
+      .first();
+    
+    if (!deck) {
+      return res.status(404).json({ error: 'Deleted deck not found' });
+    }
+    if (deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    const restoredDeck = await Deck.restore(id);
+    return res.json({ 
+      success: true, 
+      message: 'Deck has been restored',
+      deck: restoredDeck 
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to restore deck' });
+  }
+};
+
+// Lấy danh sách bộ thẻ đã xóa (thùng rác)
+const getDeletedDecks = async (req, res) => {
+  try {
+    const user_id = req.user?.userId;
+    if (!user_id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const deletedDecks = await Deck.findDeletedByUserId(user_id);
+    return res.json(deletedDecks);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch deleted decks' });
+  }
+};
+
+// Xóa cứng vĩnh viễn (chỉ dùng khi thực sự cần thiết)
+const forceDeleteDeck = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Tìm deck đã bị xóa mềm
+    const deck = await knex('decks')
+      .where({ deck_id: id })
+      .whereNotNull('deleted_at')
+      .first();
+    
+    if (!deck) {
+      return res.status(404).json({ error: 'Deleted deck not found' });
+    }
+    if (deck.user_id !== req.user?.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    await Deck.forceDelete(id);
+    return res.json({ 
+      success: true, 
+      message: 'Deck has been permanently deleted' 
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to permanently delete deck' });
+  }
+};
+
+export default { 
+  createDeck, 
+  getDecks, 
+  getDeck, 
+  updateDeck, 
+  deleteDeck, 
+  restoreDeck, 
+  getDeletedDecks, 
+  forceDeleteDeck 
+};
