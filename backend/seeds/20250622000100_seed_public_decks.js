@@ -15,8 +15,8 @@ export async function seed(knex) {
       .returning('*');
     publicUser = user;
   }
-  
-let demoUser = await knex('users')
+
+  let demoUser = await knex('users')
     .where({ email: 'demo@memorix.com' })
     .first();
   if (!demoUser) {
@@ -40,7 +40,7 @@ let demoUser = await knex('users')
         '100 từ vựng tiếng Anh giao tiếp cơ bản, thường gặp trong đời sống hàng ngày. Phù hợp cho người mới bắt đầu hoặc ôn luyện nền tảng.',
       is_public: true,
       image_url: null,
-      category: 'Tiếng Anh',
+      category: 'Ngôn ngữ', // Bổ sung category
     })
     .returning('*');
 
@@ -226,7 +226,7 @@ let demoUser = await knex('users')
         '40 câu hỏi trắc nghiệm về các mốc sự kiện quan trọng trong lịch sử Việt Nam. Mỗi câu có 4 đáp án, chọn đáp án đúng.',
       is_public: true,
       image_url: null,
-      category: 'Lịch sử',
+      category: 'Lịch sử', // Bổ sung category
     })
     .returning('*');
 
@@ -522,7 +522,7 @@ let demoUser = await knex('users')
         '50 cụm từ tiếng Việt cơ bản dành cho du khách, giúp giao tiếp trong các tình huống du lịch như hỏi đường, mua sắm, và ăn uống.',
       is_public: true,
       image_url: null,
-      category: 'Ngôn ngữ',
+      category: 'Ngôn ngữ', // Bổ sung category
     })
     .returning('*');
 
@@ -662,6 +662,623 @@ let demoUser = await knex('users')
     }))
   );
 
+  // --------- Deck 4: Các trường phái nghệ thuật nổi tiếng ---------
+  const [deck4] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Các trường phái nghệ thuật nổi tiếng',
+      description:
+        'Bộ flashcard tổng hợp các trường phái nghệ thuật lớn trên thế giới, giúp nhận biết đặc điểm, tác phẩm tiêu biểu và nghệ sĩ đại diện. Phù hợp cho học sinh, sinh viên, người yêu mỹ thuật.',
+      is_public: true,
+      image_url: null,
+      category: 'Nghệ thuật',
+    })
+    .returning('*');
+
+  const artMovements = [
+    [
+      'Ấn tượng (Impressionism)',
+      'Nhấn mạnh ánh sáng, màu sắc, nét vẽ tự do. Đại diện: Monet, Renoir. Ví dụ: "Impression, Sunrise".',
+    ],
+    [
+      'Lập thể (Cubism)',
+      'Phá vỡ hình khối, phối cảnh đa chiều. Đại diện: Picasso, Braque. Ví dụ: "Les Demoiselles d’Avignon".',
+    ],
+    [
+      'Siêu thực (Surrealism)',
+      'Khai thác tiềm thức, hình ảnh phi lý. Đại diện: Dalí, Magritte. Ví dụ: "The Persistence of Memory".',
+    ],
+    [
+      'Trừu tượng (Abstract)',
+      'Không mô tả thực tế, tập trung hình khối, màu sắc. Đại diện: Kandinsky, Mondrian.',
+    ],
+    [
+      'Baroque',
+      'Phong cách hoành tráng, tương phản mạnh. Đại diện: Caravaggio, Rubens.',
+    ],
+    [
+      'Phục hưng (Renaissance)',
+      'Tái hiện hiện thực, tỉ lệ chuẩn xác. Đại diện: Leonardo da Vinci, Michelangelo.',
+    ],
+    [
+      'Nghệ thuật đại chúng (Pop Art)',
+      'Hình ảnh đại chúng, màu sắc tươi sáng. Đại diện: Andy Warhol.',
+    ],
+    [
+      'Biểu hiện (Expressionism)',
+      'Thể hiện cảm xúc mãnh liệt. Đại diện: Edvard Munch.',
+    ],
+    [
+      'Dã thú (Fauvism)',
+      'Màu sắc mạnh, nét vẽ tự do. Đại diện: Henri Matisse.',
+    ],
+    ['Hiện thực (Realism)', 'Phản ánh cuộc sống thực. Đại diện: Courbet.'],
+    [
+      'Tân cổ điển (Neoclassicism)',
+      'Lấy cảm hứng từ nghệ thuật Hy Lạp, La Mã cổ.',
+    ],
+    [
+      'Hậu ấn tượng (Post-Impressionism)',
+      'Phát triển từ ấn tượng, nhấn mạnh cảm xúc cá nhân. Đại diện: Van Gogh, Cézanne.',
+    ],
+    [
+      'Lãng mạn (Romanticism)',
+      'Đề cao cảm xúc, thiên nhiên. Đại diện: Delacroix.',
+    ],
+    ['Dadaism', 'Phản nghệ thuật, phi lý.'],
+    ['Op Art', 'Nghệ thuật thị giác, ảo giác quang học.'],
+    ['Minimalism', 'Tối giản hình khối, màu sắc.'],
+    ['Art Nouveau', 'Đường cong mềm mại, trang trí cầu kỳ.'],
+    ['Gothic', 'Kiến trúc vòm nhọn, kính màu.'],
+    ['Rococo', 'Trang trí cầu kỳ, nhẹ nhàng.'],
+    ['Symbolism', 'Biểu tượng, ý nghĩa sâu xa.'],
+  ];
+  const flashcards4 = artMovements.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards4.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Ai là nghệ sĩ tiêu biểu của trường phái Ấn tượng?',
+        options: ['Monet', 'Warhol', 'Picasso', 'Matisse'],
+        answer: 'Monet',
+      },
+    },
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Tác phẩm "Mona Lisa" thuộc trường phái nào?',
+        options: ['Phục hưng', 'Lập thể', 'Pop Art', 'Baroque'],
+        answer: 'Phục hưng',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Trường phái nhấn mạnh ánh sáng và màu sắc là _________.',
+        answer: 'Ấn tượng',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards4.map((f) => ({
+      deck_id: deck4.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 5: Các khái niệm Toán học cơ bản ---------
+  const [deck5] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Các khái niệm Toán học cơ bản',
+      description:
+        'Bộ flashcard tổng hợp các khái niệm nền tảng của toán học: số học, đại số, hình học, xác suất, tỉ lệ, phần trăm... Có ví dụ thực tế, bài tập ứng dụng, phù hợp cho học sinh tiểu học, THCS.',
+      is_public: true,
+      image_url: null,
+      category: 'Toán học',
+    })
+    .returning('*');
+
+  const mathConcepts = [
+    ['Số tự nhiên', '0, 1, 2, 3, ... là các số tự nhiên.'],
+    ['Số nguyên', '..., -2, -1, 0, 1, 2, ... là các số nguyên.'],
+    ['Số thập phân', 'Ví dụ: 0.5, 2.75.'],
+    ['Số hữu tỉ', 'Số có thể viết dưới dạng phân số.'],
+    ['Số vô tỉ', 'Số không thể viết dưới dạng phân số, ví dụ: √2, π.'],
+    ['Phép cộng', '2 + 3 = 5.'],
+    ['Phép trừ', '5 - 2 = 3.'],
+    ['Phép nhân', '4 x 3 = 12.'],
+    ['Phép chia', '12 / 4 = 3.'],
+    ['Phân số', '1/2, 3/4.'],
+    ['Tỉ lệ', 'Ví dụ: 1:2, 3:5.'],
+    ['Phần trăm', '50% = 0.5.'],
+    ['Căn bậc hai', '√9 = 3.'],
+    ['Phương trình', 'x + 2 = 5.'],
+    ['Biến', 'x, y, z.'],
+    ['Hình vuông', 'Có 4 cạnh bằng nhau, 4 góc vuông.'],
+    ['Hình tròn', 'Tập hợp các điểm cách đều tâm.'],
+    ['Tam giác', 'Có 3 cạnh, tổng góc = 180°.'],
+    ['Xác suất', 'Khả năng xảy ra của một sự kiện.'],
+    ['Tập hợp', 'Tập hợp các phần tử.'],
+    ['Đường thẳng', 'Không có điểm đầu và điểm cuối.'],
+    ['Đoạn thẳng', 'Có điểm đầu và điểm cuối.'],
+    ['Góc vuông', 'Góc 90°.'],
+    ['Chu vi', 'Tổng độ dài các cạnh.'],
+    ['Diện tích', 'Đo phần mặt phẳng.'],
+    ['Thể tích', 'Đo không gian 3 chiều.'],
+    ['Đồ thị', 'Biểu diễn hàm số.'],
+    ['Hàm số', 'Liên hệ giữa biến độc lập và phụ thuộc.'],
+    ['Tỉ số', 'So sánh hai đại lượng.'],
+    ['Số thập phân vô hạn', 'Ví dụ: 0.333...'],
+  ];
+  const flashcards5 = mathConcepts.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards5.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Kết quả của 7 x 8 là bao nhiêu?',
+        options: ['54', '56', '64', '58'],
+        answer: '56',
+      },
+    },
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Số nào là căn bậc hai của 25?',
+        options: ['3', '4', '5', '6'],
+        answer: '5',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Chu vi hình vuông cạnh 4cm là ____ cm.',
+        answer: '16',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards5.map((f) => ({
+      deck_id: deck5.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 6: Nhà khoa học và phát minh nổi tiếng ---------
+  const [deck6] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Nhà khoa học và phát minh nổi tiếng',
+      description:
+        'Bộ flashcard giới thiệu các nhà khoa học lớn và phát minh tiêu biểu, giúp ghi nhớ đóng góp của họ cho nhân loại. Mỗi thẻ có thông tin ngắn gọn, dễ nhớ, phù hợp cho học sinh, người yêu khoa học.',
+      is_public: true,
+      image_url: null,
+      category: 'Khoa học',
+    })
+    .returning('*');
+
+  const scientists = [
+    ['Isaac Newton', 'Định luật vạn vật hấp dẫn, phát triển giải tích.'],
+    ['Albert Einstein', 'Thuyết tương đối, E=mc².'],
+    ['Marie Curie', 'Khám phá ra polonium, radium, 2 giải Nobel.'],
+    ['Thomas Edison', 'Phát minh bóng đèn điện, máy ghi âm.'],
+    ['Alexander Graham Bell', 'Phát minh điện thoại.'],
+    ['James Watt', 'Cải tiến động cơ hơi nước.'],
+    ['Galileo Galilei', 'Kính thiên văn, vật lý hiện đại.'],
+    ['Nikola Tesla', 'Dòng điện xoay chiều, radio.'],
+    ['Louis Pasteur', 'Vắc-xin, tiệt trùng Pasteur.'],
+    ['Charles Darwin', 'Thuyết tiến hóa.'],
+    ['Gregor Mendel', 'Di truyền học.'],
+    ['Michael Faraday', 'Điện từ học.'],
+    ['Stephen Hawking', 'Vũ trụ học, lỗ đen.'],
+    ['Dmitri Mendeleev', 'Bảng tuần hoàn hóa học.'],
+    ['Tim Berners-Lee', 'Phát minh World Wide Web.'],
+    ['Jonas Salk', 'Vắc-xin bại liệt.'],
+    ['Graham Bell', 'Điện thoại.'],
+    ['Guglielmo Marconi', 'Phát minh radio.'],
+    ['Wright brothers', 'Máy bay đầu tiên.'],
+    ['Edward Jenner', 'Vắc-xin đầu tiên (đậu mùa).'],
+    ['Ada Lovelace', 'Lập trình viên đầu tiên.'],
+    ['Jane Goodall', 'Nghiên cứu tinh tinh.'],
+    ['Rosalind Franklin', 'Cấu trúc DNA.'],
+    ['Richard Feynman', 'Vật lý lượng tử.'],
+    ['Enrico Fermi', 'Lò phản ứng hạt nhân.'],
+    ['Niels Bohr', 'Mô hình nguyên tử Bohr.'],
+    ['Heisenberg', 'Nguyên lý bất định.'],
+    ['Max Planck', 'Lượng tử ánh sáng.'],
+    ['Carl Sagan', 'Truyền thông khoa học.'],
+    ['Rachel Carson', 'Bảo vệ môi trường.'],
+  ];
+  const flashcards6 = scientists.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards6.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Ai là người phát minh ra bóng đèn điện?',
+        options: ['Edison', 'Newton', 'Tesla', 'Curie'],
+        answer: 'Edison',
+      },
+    },
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Ai là cha đẻ của thuyết tiến hóa?',
+        options: ['Darwin', 'Einstein', 'Newton', 'Faraday'],
+        answer: 'Darwin',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Người đầu tiên phát minh ra vắc-xin là _________.',
+        answer: 'Edward Jenner',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards6.map((f) => ({
+      deck_id: deck6.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 7: Các tác phẩm văn học Việt Nam nổi bật ---------
+  const [deck7] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Các tác phẩm văn học Việt Nam nổi bật',
+      description:
+        'Bộ flashcard tổng hợp các tác phẩm văn học kinh điển, hiện đại của Việt Nam, giúp ghi nhớ tác giả, nội dung chính, ý nghĩa, trích đoạn tiêu biểu.',
+      is_public: true,
+      image_url: null,
+      category: 'Nghệ thuật',
+    })
+    .returning('*');
+
+  const literatureVN = [
+    ['Truyện Kiều', 'Nguyễn Du, thơ lục bát, số phận nàng Kiều.'],
+    ['Chí Phèo', 'Nam Cao, bi kịch người nông dân bị tha hóa.'],
+    ['Lão Hạc', 'Nam Cao, tình cha con, số phận người nghèo.'],
+    ['Tắt đèn', 'Ngô Tất Tố, nỗi khổ người phụ nữ nông thôn.'],
+    ['Vợ nhặt', 'Kim Lân, nạn đói 1945, tình người.'],
+    ['Số đỏ', 'Vũ Trọng Phụng, châm biếm xã hội.'],
+    ['Dế Mèn phiêu lưu ký', 'Tô Hoài, truyện thiếu nhi nổi tiếng.'],
+    ['Đất rừng phương Nam', 'Đoàn Giỏi, cuộc sống Nam Bộ.'],
+    ['Lặng lẽ Sa Pa', 'Nguyễn Thành Long, vẻ đẹp con người lao động.'],
+    ['Chiếc lược ngà', 'Nguyễn Quang Sáng, tình cha con thời chiến.'],
+    ['Bình Ngô đại cáo', 'Nguyễn Trãi, áng thiên cổ hùng văn.'],
+    [
+      'Tuyên ngôn Độc lập',
+      'Hồ Chí Minh, khai sinh nước Việt Nam Dân chủ Cộng hòa.',
+    ],
+    ['Vợ chồng A Phủ', 'Tô Hoài, số phận người dân miền núi.'],
+    ['Rừng xà nu', 'Nguyễn Trung Thành, sức sống Tây Nguyên.'],
+    ['Lão Hạc', 'Nam Cao, tình cha con, số phận người nghèo.'],
+    [
+      'Những ngôi sao xa xôi',
+      'Lê Minh Khuê, nữ thanh niên xung phong thời chiến.',
+    ],
+    ['Đồng chí', 'Chính Hữu, tình đồng đội.'],
+    ['Tây Tiến', 'Quang Dũng, vẻ đẹp người lính.'],
+    ['Việt Bắc', 'Tố Hữu, kháng chiến chống Pháp.'],
+    ['Sóng', 'Xuân Quỳnh, tình yêu đôi lứa.'],
+  ];
+  const flashcards7 = literatureVN.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards7.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Ai là tác giả của "Truyện Kiều"?',
+        options: ['Nguyễn Du', 'Nam Cao', 'Tô Hoài', 'Kim Lân'],
+        answer: 'Nguyễn Du',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Tác phẩm "Chí Phèo" phản ánh bi kịch của người _________.',
+        answer: 'nông dân',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards7.map((f) => ({
+      deck_id: deck7.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 8: Danh nhân Việt Nam ---------
+  const [deck8] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Danh nhân Việt Nam',
+      description:
+        'Bộ flashcard giúp ghi nhớ các danh nhân, anh hùng dân tộc, nhà văn hóa lớn của Việt Nam, đóng góp cho lịch sử, văn hóa, khoa học.',
+      is_public: true,
+      image_url: null,
+      category: 'Lịch sử',
+    })
+    .returning('*');
+
+  const famousVN = [
+    ['Hồ Chí Minh', 'Lãnh tụ cách mạng, Chủ tịch nước đầu tiên.'],
+    ['Nguyễn Trãi', 'Danh nhân văn hóa thế giới, tác giả Bình Ngô đại cáo.'],
+    [
+      'Trần Hưng Đạo',
+      'Anh hùng dân tộc, chỉ huy kháng chiến chống Nguyên Mông.',
+    ],
+    ['Lý Thường Kiệt', 'Tướng tài, tác giả Nam quốc sơn hà.'],
+    ['Nguyễn Du', 'Tác giả Truyện Kiều, danh nhân văn hóa thế giới.'],
+    ['Phan Bội Châu', 'Nhà yêu nước, lãnh đạo phong trào Đông Du.'],
+    ['Phan Châu Trinh', 'Nhà cải cách, vận động Duy Tân.'],
+    ['Võ Nguyên Giáp', 'Đại tướng, chỉ huy chiến dịch Điện Biên Phủ.'],
+    ['Lê Quý Đôn', 'Nhà bác học, nhà thơ lớn.'],
+    ['Ngô Quyền', 'Người đánh bại quân Nam Hán trên sông Bạch Đằng.'],
+    ['Bà Triệu', 'Nữ anh hùng chống quân Ngô.'],
+    ['Hai Bà Trưng', 'Khởi nghĩa chống Bắc thuộc.'],
+    ['Nguyễn Ái Quốc', 'Tên gọi khác của Hồ Chí Minh.'],
+    ['Tô Hiến Thành', 'Trung thần thời Lý.'],
+    ['Đặng Thùy Trâm', 'Bác sĩ, liệt sĩ thời chống Mỹ.'],
+    ['Nguyễn Thị Minh Khai', 'Nữ chiến sĩ cách mạng.'],
+    ['Nguyễn Lương Bằng', 'Lãnh đạo cách mạng.'],
+    ['Nguyễn Văn Cừ', 'Tổng Bí thư Đảng Cộng sản VN.'],
+    ['Nguyễn Khuyến', 'Nhà thơ nổi tiếng với thơ Nôm.'],
+    ['Tản Đà', 'Nhà thơ, nhà báo lớn.'],
+  ];
+  const flashcards8 = famousVN.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards8.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Ai là người chỉ huy chiến dịch Điện Biên Phủ?',
+        options: [
+          'Võ Nguyên Giáp',
+          'Trần Hưng Đạo',
+          'Ngô Quyền',
+          'Lý Thường Kiệt',
+        ],
+        answer: 'Võ Nguyên Giáp',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Tác giả "Truyện Kiều" là _________.',
+        answer: 'Nguyễn Du',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards8.map((f) => ({
+      deck_id: deck8.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 9: Kiến thức Khoa học tự nhiên cơ bản ---------
+  const [deck9] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Kiến thức Khoa học tự nhiên cơ bản',
+      description:
+        'Bộ flashcard tổng hợp kiến thức cơ bản về vật lý, hóa học, sinh học, giúp học sinh ôn tập và mở rộng hiểu biết.',
+      is_public: true,
+      image_url: null,
+      category: 'Khoa học',
+    })
+    .returning('*');
+
+  const scienceBasics = [
+    ['Nước sôi ở nhiệt độ nào?', '100°C (ở áp suất thường).'],
+    ['Công thức hóa học của nước', 'H2O.'],
+    ['Trái Đất quay quanh gì?', 'Mặt Trời.'],
+    ['Thực vật quang hợp nhờ gì?', 'Ánh sáng Mặt Trời.'],
+    ['Đơn vị đo chiều dài chuẩn quốc tế', 'Mét (m).'],
+    ['Nguyên tố phổ biến nhất vũ trụ', 'Hydro.'],
+    ['Động vật có vú lớn nhất', 'Cá voi xanh.'],
+    ['Tế bào là gì?', 'Đơn vị cấu tạo cơ bản của sinh vật.'],
+    ['Khí nào cần cho hô hấp?', 'Oxy (O2).'],
+    ['Cơ quan bơm máu trong cơ thể', 'Tim.'],
+    ['Quá trình chuyển hóa thức ăn thành năng lượng', 'Hô hấp tế bào.'],
+    ['Nguyên tố hóa học ký hiệu Fe', 'Sắt.'],
+    ['Tốc độ ánh sáng', 'Khoảng 300.000 km/s.'],
+    ['Động vật có xương sống đầu tiên lên cạn', 'Lưỡng cư.'],
+    ['Cây xanh hấp thụ khí gì?', 'CO2.'],
+    ['Đơn vị đo khối lượng', 'Kilogram (kg).'],
+    ['Cấu tạo nguyên tử gồm', 'Electron, proton, neutron.'],
+    ['Quá trình nước thành hơi', 'Bốc hơi.'],
+    ['Động vật nào đẻ trứng?', 'Chim, cá, bò sát...'],
+    ['Nguyên tố hóa học ký hiệu Na', 'Natri.'],
+  ];
+  const flashcards9 = scienceBasics.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards9.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Công thức hóa học của nước là gì?',
+        options: ['CO2', 'H2O', 'O2', 'NaCl'],
+        answer: 'H2O',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Đơn vị đo khối lượng chuẩn quốc tế là _________.',
+        answer: 'Kilogram',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards9.map((f) => ({
+      deck_id: deck9.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 10: Thành ngữ, tục ngữ Việt Nam ---------
+  const [deck10] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Thành ngữ, tục ngữ Việt Nam',
+      description:
+        'Bộ flashcard giúp ghi nhớ, hiểu ý nghĩa các thành ngữ, tục ngữ quen thuộc trong tiếng Việt, ứng dụng trong giao tiếp, học tập.',
+      is_public: true,
+      image_url: null,
+      category: 'Ngôn ngữ',
+    })
+    .returning('*');
+
+  const idiomsVN = [
+    ['Ăn quả nhớ kẻ trồng cây', 'Biết ơn người đi trước.'],
+    ['Có công mài sắt, có ngày nên kim', 'Kiên trì sẽ thành công.'],
+    ['Nước chảy đá mòn', 'Kiên nhẫn, bền bỉ sẽ vượt qua khó khăn.'],
+    ['Một cây làm chẳng nên non', 'Đoàn kết tạo sức mạnh.'],
+    ['Gần mực thì đen, gần đèn thì sáng', 'Môi trường ảnh hưởng con người.'],
+    ['Tốt gỗ hơn tốt nước sơn', 'Chất lượng quan trọng hơn hình thức.'],
+    ['Uống nước nhớ nguồn', 'Biết ơn cội nguồn.'],
+    ['Lá lành đùm lá rách', 'Tương thân tương ái.'],
+    ['Chớ thấy sóng cả mà ngã tay chèo', 'Không nản chí trước khó khăn.'],
+    ['Đói cho sạch, rách cho thơm', 'Giữ phẩm chất dù nghèo khó.'],
+    [
+      'Khôn ngoan đối đáp người ngoài, gà cùng một mẹ chớ hoài đá nhau',
+      'Đoàn kết trong gia đình.',
+    ],
+    ['Thất bại là mẹ thành công', 'Qua thất bại mới có thành công.'],
+    ['Có chí thì nên', 'Có ý chí sẽ thành công.'],
+    ['Cá không ăn muối cá ươn', 'Không nghe lời sẽ gặp hậu quả.'],
+    ['Lửa thử vàng, gian nan thử sức', 'Khó khăn thử thách bản lĩnh.'],
+    ['Một miếng khi đói bằng một gói khi no', 'Giúp đỡ lúc khó khăn quý hơn.'],
+    ['Ăn cơm nhà vác tù và hàng tổng', 'Làm việc công ích không lợi cho mình.'],
+    ['Chim sa cá lặn', 'Chỉ người con gái đẹp.'],
+    ['Mất bò mới lo làm chuồng', 'Chủ quan dẫn đến hậu quả.'],
+    ['Được voi đòi tiên', 'Tham lam, không biết đủ.'],
+  ];
+  const flashcards10 = idiomsVN.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards10.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Thành ngữ nào nói về lòng biết ơn?',
+        options: [
+          'Ăn quả nhớ kẻ trồng cây',
+          'Được voi đòi tiên',
+          'Chim sa cá lặn',
+          'Mất bò mới lo làm chuồng',
+        ],
+        answer: 'Ăn quả nhớ kẻ trồng cây',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Thành ngữ "Có công mài sắt, có ngày nên ___" dạy về sự kiên trì.',
+        answer: 'kim',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards10.map((f) => ({
+      deck_id: deck10.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
+  // --------- Deck 11: Địa lý Việt Nam ---------
+  const [deck11] = await knex('decks')
+    .insert({
+      user_id: publicUser.user_id,
+      name: 'Địa lý Việt Nam',
+      description:
+        'Bộ flashcard tổng hợp kiến thức địa lý cơ bản về Việt Nam: vị trí, địa hình, sông ngòi, khí hậu, các vùng miền, di sản nổi bật.',
+      is_public: true,
+      image_url: null,
+      category: 'Khoa học',
+    })
+    .returning('*');
+
+  const geographyVN = [
+    ['Thủ đô Việt Nam', 'Hà Nội.'],
+    ['Thành phố lớn nhất Việt Nam', 'TP. Hồ Chí Minh.'],
+    ['Dãy núi cao nhất Việt Nam', 'Hoàng Liên Sơn (có đỉnh Fansipan).'],
+    ['Sông dài nhất Việt Nam', 'Sông Đồng Nai.'],
+    ['Biển lớn nhất Việt Nam', 'Biển Đông.'],
+    ['Vịnh nổi tiếng ở miền Bắc', 'Vịnh Hạ Long.'],
+    ['Đồng bằng lớn nhất', 'Đồng bằng sông Cửu Long.'],
+    ['Đảo lớn nhất', 'Phú Quốc.'],
+    ['Vườn quốc gia nổi tiếng', 'Cúc Phương, Phong Nha - Kẻ Bàng.'],
+    [
+      'Di sản thế giới UNESCO',
+      'Vịnh Hạ Long, Phong Nha - Kẻ Bàng, Quần thể Tràng An.',
+    ],
+    ['Khí hậu Việt Nam', 'Nhiệt đới gió mùa.'],
+    ['Biên giới phía Bắc giáp nước nào?', 'Trung Quốc.'],
+    ['Biên giới phía Tây giáp nước nào?', 'Lào, Campuchia.'],
+    ['Sông Hồng chảy qua tỉnh nào?', 'Hà Nội, Hưng Yên, Nam Định...'],
+    ['Vùng kinh tế trọng điểm phía Nam', 'TP.HCM, Bình Dương, Đồng Nai...'],
+    ['Cao nguyên lớn nhất', 'Cao nguyên Tây Nguyên.'],
+    ['Bán đảo lớn nhất', 'Bán đảo Sơn Trà.'],
+    ['Hồ nước ngọt lớn nhất', 'Hồ Ba Bể.'],
+    ['Cửa khẩu quốc tế nổi tiếng', 'Hữu Nghị, Mộc Bài.'],
+    ['Địa danh nổi tiếng miền Trung', 'Huế, Đà Nẵng, Hội An.'],
+  ];
+  const flashcards11 = geographyVN.map(([front, back]) => ({
+    card_type: 'two_sided',
+    content: { front, back },
+  }));
+  flashcards11.push(
+    {
+      card_type: 'multiple_choice',
+      content: {
+        question: 'Đỉnh núi cao nhất Việt Nam là gì?',
+        options: ['Fansipan', 'Bạch Mã', 'Ba Vì', 'Langbiang'],
+        answer: 'Fansipan',
+      },
+    },
+    {
+      card_type: 'fill_in_blank',
+      content: {
+        text: 'Thủ đô của Việt Nam là _________.',
+        answer: 'Hà Nội',
+      },
+    }
+  );
+  await knex('flashcards').insert(
+    flashcards11.map((f) => ({
+      deck_id: deck11.deck_id,
+      card_type: f.card_type,
+      content: f.content,
+    }))
+  );
+
   // Đảm bảo sequence cho tất cả các bảng auto-increment đúng sau khi seed
   await knex.raw(`
     SELECT setval('users_user_id_seq', COALESCE((SELECT MAX(user_id) FROM users), 1), true);
@@ -685,6 +1302,8 @@ export async function down(knex) {
       '100 English Communication Words',
       'Lịch sử Việt Nam: Các mốc sự kiện quan trọng',
       'Basic Vietnamese Phrases for Travelers',
+      'Famous Art Movements',
+      'Basic Math Concepts',
     ];
     const decks = await knex('decks')
       .where({ user_id: publicUser.user_id })
