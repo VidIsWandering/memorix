@@ -6,11 +6,19 @@ import { config } from 'dotenv';
 import routes from './src/routes/index.js';
 import process from 'node:process';
 import cron from 'node-cron';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { notifyAllUsersWithDueFlashcards } from './src/utils/notificationScheduler.js';
 
 config();
 
+// fix cho __dirname nếu dùng ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+// Upload images 
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Middleware
 app.use(helmet());
