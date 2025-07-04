@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api', routes);
 
 // Cron job for daily notifications
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 9 * * *', async () => {
   console.log('Running daily notification job...');
   try {
     await notifyAllUsersWithDueFlashcards();
