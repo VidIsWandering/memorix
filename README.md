@@ -76,3 +76,7 @@ backend/
 ## Liên hệ
 
 Nếu cần hỗ trợ, liên hệ nhóm phát triển hoặc tạo issue trên GitHub.
+
+
+# Memorix Frontend
+Github: https://github.com/ToanHuynh0201/SE114-Memorix
